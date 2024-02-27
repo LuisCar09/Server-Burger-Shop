@@ -21,8 +21,24 @@ const options = {
 };
 
 
-app.get('/burgers', async (req, res) => {
+const addTotalAmoutOfMoney = () => {
+    let add = 0
+    let totalAmountOfMoney = 0
+    console.log(burgersAdded);
+    if (burgersAdded.length > 0) {
+        burgersAdded.map((burger) => {
+            add = Number(burger.price) * burger.quantity
+            totalAmountOfMoney += add
+            // console.log('---------------Line 30-------------------');
+            // console.log('TotalAmoutOfMoney: ',totalAmountOfMoney);
+        })
+    }
+    console.log('Line 35: ',totalAmountOfMoney );
+}
 
+//Data send to render burgers
+app.get('/burgers', async (req, res) => {
+    
     try {
         const response = await axios.get(API_URL + '/burgers', options)
         const burgers = response.data
@@ -39,22 +55,31 @@ app.get('/add',(req,res)=>{
 })
 app.post('/add', (req, res) => {
     const { name, picture, price, id } = req.body
-
+    
     try {
+        let counter  = ''
         let item = {
             name: name,
             picture: picture,
             price: price,
             id: id,
-            quantity: 1
+            quantity: 1,
+            total: null
         }
-
+         
         const itemExist = burgersAdded.find(burger => burger.id === item.id)
-
-
-        !itemExist ? burgersAdded.push(item) : itemExist.quantity += 1
-        // console.log('-----------------------burgersAdded---------------------------------------------------');
-        // console.log(burgersAdded);
+        
+        //Here I check if itemExist isn't tru add to array, else add 1 more to itemExist.quantity: 1;
+        !itemExist ? burgersAdded.push(item) : itemExist.quantity += 1;
+        
+        //If itemExist total will be burger's amount * quantity, the I will use this result to send to client side and rendering it
+        if (itemExist) {
+            itemExist.total = () =>{
+                console.log('Se ejecuto');
+                return( Number(itemExist.price) * itemExist.quantity)
+            }
+        }
+        console.log(burgersAdded);
         res.status(200).send('Data received correctly')
     } catch (error) {
         console.error('Error sending data to client side',error.message);
@@ -64,8 +89,45 @@ app.post('/add', (req, res) => {
     
 })
 
+app.patch('/add', (req,res) => {
+    const {id,value} = req.body
+    //We search if id number exist in burgersAdd array, if exist return object with this ID 
+    const itemExist = burgersAdded.find(burger => burger.id === id)
+    itemExist.quantity = value
+    
+    console.log('-------------------------------------');
+    console.log(itemExist,'Line 96');
+    console.log('--------------FIN------------------------------');
+    
+
+    
+    res.status(200).send('Good')
+})
+app.delete('/add', (req, res) => {
+    try {
+        const id = req.body
+        console.log('Ejecutado cuando number es 0',id,'Line 100' );
+        // burgersAdded.filter(burger => burger.id !== id)
+    } catch (error) {
+        console.error('Error receiving data from client side',error.message);
+    }
+})
+
+app.get('/total',(req,res) => {
+    
+    console.log(addTotalAmoutOfMoney());
+    
+    try {
+        // console.log(addTotalAmoutOfMoney());
+        // res.json(totalAmountOfMoney)
+    } catch (error) {
+        
+    }
+})
+
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
+    console.log('-----------------------------------');
 })
 
 const data = [
@@ -215,3 +277,4 @@ const data = [
         veg: false
     }
 ]
+// QUede en get total para obtener los totales y luego renderizars
