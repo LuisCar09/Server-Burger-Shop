@@ -1,15 +1,16 @@
 import express from 'express'
 import axios from 'axios';
 import cors from 'cors';
+// import routes from './routes';
 const app = express();
 const port = 3001;
-const router = express.Router();
+
 const API_URL = 'https://burgers-hub.p.rapidapi.com'
 let burgersAdded = []
 
 //Only accept request from this corsOptions
 const corsOptions = {
-    origin: 'http://localhost:3000', 
+    origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -21,7 +22,7 @@ const corsOptions = {
 //middleware to analize JSON data
 app.use(express.json());
 app.use(cors(corsOptions));
-
+// app.use('/',routes)
 const options = {
     method: 'GET',
     url: 'https://burgers-hub.p.rapidapi.com/burgers',
@@ -32,44 +33,25 @@ const options = {
 };
 
 
-const addTotalAmoutOfMoney = () => {
-    let add = 0
-    let totalAmountOfMoney = 0
-    console.log(burgersAdded);
-    if (burgersAdded.length > 0) {
-        burgersAdded.map((burger) => {
-            totalAmountOfMoney += Number(burger.price) * burger.quantity
-            
-            // console.log('---------------Line 30-------------------');
-            // console.log('TotalAmoutOfMoney: ',totalAmountOfMoney);
-        })
-    }
-    console.log('Line 35: ',totalAmountOfMoney );
-}
-
 //Data send to render burgers
 app.get('/burgers', async (req, res) => {
-    
+
     try {
-        // const response = await axios.get(API_URL + '/burgers', options)
-        // const burgers = response.data
-
-
         res.json(data)
     } catch (error) {
         console.error('Error sending data', error);
-        res.status(500).json({error:'Server error',message:error.message})
+        res.status(500).json({ error: 'Server error', message: error.message })
     }
 })
-app.get('/add',(req,res)=>{
+app.get('/add', (req, res) => {
     res.json(burgersAdded)
 })
 
-app.get('/add/:id',(req,res)=>{
+app.get('/add/:id', (req, res) => {
     const id = parseInt(req.params.id)
-    
+
     const index = data.findIndex(burger => burger.id === id)
-    
+
     const result = data[index]
     console.log(result);
     // res.json(result)
@@ -78,9 +60,9 @@ app.get('/add/:id',(req,res)=>{
 })
 app.post('/add', (req, res) => {
     const { name, picture, price, id } = req.body
-    
+
     try {
-        let counter  = ''
+        let counter = ''
         let item = {
             name: name,
             picture: picture,
@@ -89,67 +71,62 @@ app.post('/add', (req, res) => {
             quantity: 1,
             total: null
         }
-         
+
         const itemExist = burgersAdded.find(burger => burger.id === item.id)
-        
+
         //Here I check if itemExist isn't tru add to array, else add 1 more to itemExist.quantity: 1;
         !itemExist ? burgersAdded.push(item) : itemExist.quantity += 1;
-        
+
         //If itemExist total will be burger's amount * quantity, the I will use this result to send to client side and rendering it
         if (itemExist) {
-            itemExist.total = () =>{
+            itemExist.total = () => {
                 console.log('Se ejecuto');
-                return( Number(itemExist.price) * itemExist.quantity)
+                return (Number(itemExist.price) * itemExist.quantity)
             }
         }
-        console.log(burgersAdded);
+        // console.log(burgersAdded);
         res.status(200).send('Data received correctly')
     } catch (error) {
-        console.error('Error sending data to client side',error.message);
-        res.status(500).json({error:'Server error',message:error.message})
+        console.error('Error sending data to client side', error.message);
+        res.status(500).json({ error: 'Server error', message: error.message })
     }
 
-    
+
 })
 
-app.patch('/add', (req,res) => {
-    const {id,value} = req.body
+app.patch('/add', (req, res) => {
+    const { id, value } = req.body
     //We search if id number exist in burgersAdd array, if exist return object with this ID 
-    const itemExist = burgersAdded.find(burger => burger.id === id)
-    itemExist.quantity = value
+    burgersAdded.map(burger => console.log(`${burger.id}`))
     
     console.log('-------------------------------------');
-    console.log(itemExist,'Line 96');
-    console.log('--------------FIN------------------------------');
-    
+    const itemExist = burgersAdded.find(burger => burger.id === id)
+    console.log(`Linea 101 -- itemExist: ${itemExist}, id:${id} value:${value}`)
+    itemExist.quantity = value
 
-    
+    console.log('-------------------------------------');
+    console.log(itemExist, 'Line 96');
+    console.log('--------------FIN------------------------------');
+
+
+
     res.status(200).send('Good')
 })
-app.delete('/add', (req, res) => {
+app.delete('/add/:id', (req, res) => {
+    console.log('--------------------------')
+    //recibimos los params y luego buscamos si existe ese id en el array de burgers y luego eliminamos ese item con .splice
     try {
-        const id = req.body
-        console.log('Ejecutado cuando number es 0',id,'Line 100' );
-        // burgersAdded.filter(burger => burger.id !== id)
+        const data= req.params
+        const index = burgersAdded.findIndex(burger => burger.id === Number(data.id))
+        burgersAdded.splice(index,1)
+        console.log(burgersAdded);
+        res.status(200).send('Deleted data')
     } catch (error) {
-        res.status(500).json({error:'Server error',message:error.message})
+        res.status(500).json({ error: 'Server error', message: error.message })
     }
 })
 
-// app.get('/total',(req,res) => {
-    
-//     console.log(addTotalAmoutOfMoney());
-    
-//     try {
-//         // console.log(addTotalAmoutOfMoney());
-//         // res.json(totalAmountOfMoney)
-//     } catch (error) {
-        
-//     }
-// })
-// app.patch('/order',(req,res) =>{
-//     console.log('ajaaaa');
-// })
+
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
@@ -205,7 +182,7 @@ const data = [
     {
         id: 2,
         name: 'Egg McMuffin',
-        images:  [
+        images: [
             {
                 sm: "https://s7d1.scene7.com/is/image/mcdonalds/t-mcdonalds-Egg-McMuffin-1:1-4-product-tile-desktop"
             },
@@ -661,7 +638,7 @@ const data = [
             }
         ],
         desc: 'It’s a classic for a reason. Savor the satisfying crunch of our juicy chicken patty, topped with shredded lettuce and just the right amount of creamy mayonnaise, all served on a perfectly toasted bun.* The McChicken® has 400 calories.',
-        ingredients:  [
+        ingredients: [
             {
                 id: 1,
                 name: "McChicken Patty",

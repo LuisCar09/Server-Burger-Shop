@@ -1,14 +1,15 @@
 import express from "express";
 
-const router = express.Router()
+const routes = express.Router()
 
 
-router.get('/menu',async (req,res) => {
+routes.get('/menu',async (req,res) => {
+    console.log('LUis');
     try {
-        res.json(burgers)
+        res.json(data)
     } catch (error) {
         res.send(500).json({error:'Server error', message: error.message})
     }
 })
 
-export default router;
+export default routes;
