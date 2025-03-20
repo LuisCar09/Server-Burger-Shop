@@ -53,8 +53,7 @@ app.get('/add/:id', (req, res) => {
     const index = data.findIndex(burger => burger.id === id)
 
     const result = data[index]
-    console.log(result);
-    // res.json(result)
+    
 
     res.sendStatus(200)
 })
@@ -80,11 +79,11 @@ app.post('/add', (req, res) => {
         //If itemExist total will be burger's amount * quantity, the I will use this result to send to client side and rendering it
         if (itemExist) {
             itemExist.total = () => {
-                console.log('Se ejecuto');
+                
                 return (Number(itemExist.price) * itemExist.quantity)
             }
         }
-        // console.log(burgersAdded);
+       
         res.status(200).send('Data received correctly')
     } catch (error) {
         console.error('Error sending data to client side', error.message);
@@ -99,27 +98,25 @@ app.patch('/add', (req, res) => {
     //We search if id number exist in burgersAdd array, if exist return object with this ID 
     burgersAdded.map(burger => console.log(`${burger.id}`))
     
-    console.log('-------------------------------------');
+   
     const itemExist = burgersAdded.find(burger => burger.id === id)
-    console.log(`Linea 101 -- itemExist: ${itemExist}, id:${id} value:${value}`)
+    
     itemExist.quantity = value
 
-    console.log('-------------------------------------');
-    console.log(itemExist, 'Line 96');
-    console.log('--------------FIN------------------------------');
+   
 
 
 
     res.status(200).send('Good')
 })
 app.delete('/add/:id', (req, res) => {
-    console.log('--------------------------')
+    
     //recibimos los params y luego buscamos si existe ese id en el array de burgers y luego eliminamos ese item con .splice
     try {
         const data= req.params
         const index = burgersAdded.findIndex(burger => burger.id === Number(data.id))
         burgersAdded.splice(index,1)
-        console.log(burgersAdded);
+       
         res.status(200).send('Deleted data')
     } catch (error) {
         res.status(500).json({ error: 'Server error', message: error.message })
