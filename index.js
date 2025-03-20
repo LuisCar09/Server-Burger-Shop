@@ -21,7 +21,7 @@ const corsOptions = {
 
 //middleware to analize JSON data
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors());
 // app.use('/',routes)
 const options = {
     method: 'GET',
